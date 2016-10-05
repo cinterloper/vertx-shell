@@ -18,6 +18,7 @@ package io.vertx.groovy.ext.shell.session;
 import groovy.transform.CompileStatic
 import io.vertx.lang.groovy.InternalHelper
 import io.vertx.core.json.JsonObject
+import io.vertx.groovy.ext.auth.User
 /**
  * A shell session.
 */
@@ -64,6 +65,14 @@ public class Session {
    */
   public <T> T remove(String key) {
     def ret = (T) InternalHelper.wrapObject(delegate.remove(key));
+    return ret;
+  }
+  public User getUser() {
+    def ret = InternalHelper.safeCreate(delegate.getUser(), io.vertx.groovy.ext.auth.User.class);
+    return ret;
+  }
+  public boolean setUser(User u) {
+    def ret = delegate.setUser(u != null ? (io.vertx.ext.auth.User)u.getDelegate() : null);
     return ret;
   }
 }

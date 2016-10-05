@@ -203,6 +203,8 @@ public class SSHServer implements TermServer {
           listenContext.runOnContext(v -> {
             authProvider.authenticate(new JsonObject().put("username", username).put("password", userpass), ar -> {
               auth.setAuthed(ar.succeeded());
+              if(ar.succeeded())
+                vertx.sharedData().getLocalMap("_vertx_shell_sessions").put(session.getClientAddress().toString(),ar.result());
             });
           });
           throw auth;

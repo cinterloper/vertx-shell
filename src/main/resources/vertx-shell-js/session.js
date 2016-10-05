@@ -16,6 +16,7 @@
 
 /** @module vertx-shell-js/session */
 var utils = require('vertx-js/util/utils');
+var User = require('vertx-auth-common-js/user');
 
 var io = Packages.io;
 var JsonObject = io.vertx.core.json.JsonObject;
@@ -72,6 +73,32 @@ var Session = function(j_val) {
     var __args = arguments;
     if (__args.length === 1 && typeof __args[0] === 'string') {
       return utils.convReturnTypeUnknown(j_session["remove(java.lang.String)"](key));
+    } else throw new TypeError('function invoked with invalid arguments');
+  };
+
+  /**
+
+   @public
+
+   @return {User}
+   */
+  this.getUser = function() {
+    var __args = arguments;
+    if (__args.length === 0) {
+      return utils.convReturnVertxGen(j_session["getUser()"](), User);
+    } else throw new TypeError('function invoked with invalid arguments');
+  };
+
+  /**
+
+   @public
+   @param u {User} 
+   @return {boolean}
+   */
+  this.setUser = function(u) {
+    var __args = arguments;
+    if (__args.length === 1 && typeof __args[0] === 'object' && __args[0]._jdel) {
+      return j_session["setUser(io.vertx.ext.auth.User)"](u._jdel);
     } else throw new TypeError('function invoked with invalid arguments');
   };
 

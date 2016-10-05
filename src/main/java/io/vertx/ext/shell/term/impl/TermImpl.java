@@ -38,6 +38,7 @@ import io.termd.core.tty.TtyConnection;
 import io.termd.core.util.Helper;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.cli.CliToken;
 import io.vertx.ext.shell.cli.Completion;
 import io.vertx.ext.shell.session.Session;
@@ -65,12 +66,18 @@ public class TermImpl implements Term {
   private SignalHandler suspendHandler;
   private Session session;
   private boolean inReadline;
+  private User user = null;
 
   public TermImpl(Vertx vertx, TtyConnection conn) {
-    this(vertx, io.vertx.ext.shell.term.impl.Helper.defaultKeymap(), conn);
+    this(vertx, io.vertx.ext.shell.term.impl.Helper.defaultKeymap(), conn, null);
   }
 
-  public TermImpl(Vertx vertx, Keymap keymap, TtyConnection conn) {
+  public TermImpl(Vertx vertx, Keymap keymap, TtyConnection conn){
+    this(vertx, keymap, conn, null);
+  }
+
+  public TermImpl(Vertx vertx, Keymap keymap, TtyConnection conn, User user) {
+    this.user = user;
     this.vertx = vertx;
     this.conn = conn;
     readline = new Readline(keymap);
@@ -108,6 +115,8 @@ public class TermImpl implements Term {
 
   @Override
   public Term setSession(Session session) {
+    if(this.user !=null)
+      session.setUser(this.user);
     this.session = session;
     return this;
   }

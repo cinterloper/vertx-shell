@@ -34,6 +34,7 @@ package io.vertx.ext.shell.session;
 
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.session.impl.SessionImpl;
 
 /**
@@ -78,5 +79,7 @@ public interface Session {
    * @return  the data that was there or null if none there
    */
   <T> T remove(String key);
+  User getUser();
+  boolean setUser(User u);
 
 }

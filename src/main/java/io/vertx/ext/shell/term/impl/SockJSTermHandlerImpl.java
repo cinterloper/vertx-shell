@@ -35,6 +35,7 @@ package io.vertx.ext.shell.term.impl;
 import io.termd.core.readline.Keymap;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.term.SockJSTermHandler;
 import io.vertx.ext.shell.term.Term;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
@@ -66,6 +67,7 @@ public class SockJSTermHandlerImpl implements SockJSTermHandler {
 
   @Override
   public void handle(SockJSSocket socket) {
+    User user = socket.webUser();
     if (termHandler != null) {
       SockJSTtyConnection conn = new SockJSTtyConnection(charset, vertx.getOrCreateContext(), socket);
       socket.handler(buf -> conn.writeToDecoder(buf.toString()));
@@ -75,7 +77,7 @@ public class SockJSTermHandlerImpl implements SockJSTermHandler {
           closeHandler.accept(null);
         }
       });
-      termHandler.handle(new TermImpl(vertx, keymap, conn));
+      termHandler.handle(new TermImpl(vertx, keymap, conn,user));
     } else {
       socket.close();
     }

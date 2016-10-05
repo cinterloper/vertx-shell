@@ -1,3 +1,4 @@
+require 'vertx-auth-common/user'
 require 'vertx/util/utils.rb'
 # Generated from io.vertx.ext.shell.session.Session
 module VertxShell
@@ -49,6 +50,21 @@ module VertxShell
         return ::Vertx::Util::Utils.from_object(@j_del.java_method(:remove, [Java::java.lang.String.java_class]).call(key))
       end
       raise ArgumentError, "Invalid arguments when calling remove(key)"
+    end
+    # @return [::VertxAuthCommon::User]
+    def get_user
+      if !block_given?
+        return ::Vertx::Util::Utils.safe_create(@j_del.java_method(:getUser, []).call(),::VertxAuthCommon::User)
+      end
+      raise ArgumentError, "Invalid arguments when calling get_user()"
+    end
+    # @param [::VertxAuthCommon::User] u 
+    # @return [true,false]
+    def set_user?(u=nil)
+      if u.class.method_defined?(:j_del) && !block_given?
+        return @j_del.java_method(:setUser, [Java::IoVertxExtAuth::User.java_class]).call(u.j_del)
+      end
+      raise ArgumentError, "Invalid arguments when calling set_user?(u)"
     end
   end
 end

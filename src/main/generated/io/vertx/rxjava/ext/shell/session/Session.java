@@ -18,6 +18,7 @@ package io.vertx.rxjava.ext.shell.session;
 
 import java.util.Map;
 import rx.Observable;
+import io.vertx.rxjava.ext.auth.User;
 
 /**
  * A shell session.
@@ -75,6 +76,16 @@ public class Session {
    */
   public <T> T remove(String key) { 
     T ret = (T) delegate.remove(key);
+    return ret;
+  }
+
+  public User getUser() { 
+    User ret = User.newInstance(delegate.getUser());
+    return ret;
+  }
+
+  public boolean setUser(User u) { 
+    boolean ret = delegate.setUser((io.vertx.ext.auth.User)u.getDelegate());
     return ret;
   }
 

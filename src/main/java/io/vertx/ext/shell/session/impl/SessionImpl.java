@@ -32,6 +32,7 @@
 
 package io.vertx.ext.shell.session.impl;
 
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.session.Session;
 
 import java.util.HashMap;
@@ -42,25 +43,40 @@ import java.util.Map;
  */
 public class SessionImpl implements Session {
 
-  private Map<String, Object> data = new HashMap<>();
+    private Map<String, Object> data = new HashMap<>();
+    private User user = null;
+    boolean init = false;
 
-  @Override
-  public Session put(String key, Object obj) {
-    if (obj == null) {
-      data.remove(key);
-    } else {
-      data.put(key, obj);
+    @Override
+    public Session put(String key, Object obj) {
+        if (obj == null) {
+            data.remove(key);
+        } else {
+            data.put(key, obj);
+        }
+        return this;
     }
-    return this;
-  }
 
-  @Override
-  public <T> T get(String key) {
-    return (T) data.get(key);
-  }
+    @Override
+    public <T> T get(String key) {
+        return (T) data.get(key);
+    }
 
-  @Override
-  public <T> T remove(String key) {
-    return (T) data.remove(key);
-  }
+    @Override
+    public <T> T remove(String key) {
+        return (T) data.remove(key);
+    }
+
+    public User getUser() {
+        return user;
+    }
+    //you should only be able to set this once, when the session is being setup
+    public boolean setUser(User u) {
+        if ((user == null) && !init) {
+            this.user = u;
+            init = true;
+            return true;
+        }
+        return false;
+    }
 }
