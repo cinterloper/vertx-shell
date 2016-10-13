@@ -37,6 +37,8 @@ import io.vertx.core.impl.ContextInternal;
 import org.apache.sshd.common.io.IoHandler;
 import org.apache.sshd.common.io.IoSession;
 
+import java.util.UUID;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
@@ -50,7 +52,9 @@ public class VertxIoHandlerBridge extends NettyIoHandlerBridge {
 
   @Override
   public void sessionCreated(IoHandler handler, IoSession session) throws Exception {
+    session.setAttribute("SID", UUID.randomUUID());
     context.executeFromIO(() -> {
+
       super.sessionCreated(handler, session);
     });
   }

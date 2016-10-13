@@ -36,11 +36,13 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.Shell;
 import io.vertx.ext.shell.ShellServer;
 import io.vertx.ext.shell.ShellServerOptions;
 import io.vertx.ext.shell.command.CommandBuilder;
 import io.vertx.ext.shell.command.CommandResolver;
+import io.vertx.ext.shell.session.Session;
 import io.vertx.ext.shell.session.impl.SessionImpl;
 import io.vertx.ext.shell.system.Process;
 import io.vertx.ext.shell.system.impl.InternalCommandManager;
@@ -120,6 +122,7 @@ public class ShellServerImpl implements ShellServer {
     }
     ShellImpl session = createShell(term);
     session.setWelcome(welcomeMessage);
+
     session.closedFuture.setHandler(ar -> {
       boolean completeSessionClosed;
       synchronized (ShellServerImpl.this) {
@@ -173,8 +176,14 @@ public class ShellServerImpl implements ShellServer {
     toStart.forEach(termServer -> {
       if (termServer instanceof SSHServer) {
         ((SSHServer)termServer).setExecHandler(exec -> {
+
+          ((SSHServer)termServer).getNativeServer().getActiveSessions().get(0);
+
           Process process = commandManager.createProcess(exec.command());
-          process.setSession(new SessionImpl());
+          Session s = new SessionImpl();
+          User u = ((exec.user));
+          s.setUser(u);
+          process.setSession(s);
           process.setTty(exec);
           process.terminatedHandler(exec::end);
           process.run(true, done -> {});

@@ -33,10 +33,12 @@
 package io.vertx.ext.shell.term.impl;
 
 import io.termd.core.readline.Keymap;
+import io.termd.core.ssh.SSHTtyConnection;
 import io.termd.core.ssh.TtyCommand;
 import io.termd.core.ssh.netty.AsyncAuth;
 import io.termd.core.ssh.netty.AsyncUserAuthServiceFactory;
 import io.termd.core.ssh.netty.NettyIoServiceFactoryFactory;
+import io.termd.core.tty.TtyConnection;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -46,14 +48,17 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.impl.ContextInternal;
 import io.vertx.core.impl.VertxInternal;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.net.KeyCertOptions;
 import io.vertx.core.net.PfxOptions;
 import io.vertx.core.net.impl.KeyStoreHelper;
 import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.term.SSHTermOptions;
 import io.vertx.ext.shell.term.TermServer;
 import io.vertx.ext.shell.term.Term;
+import org.apache.sshd.common.AttributeStore;
 import org.apache.sshd.common.keyprovider.AbstractKeyPairProvider;
 import org.apache.sshd.common.keyprovider.KeyPairProvider;
 import org.apache.sshd.server.SshServer;
@@ -73,13 +78,15 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
+
 /**
  * Encapsulate the SSH server setup.
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class SSHServer implements TermServer {
-
+  public static final AttributeStore.AttributeKey<User> USER_KEY = new AttributeStore.AttributeKey<User>();
   private static final int STATUS_STOPPED = 0, STATUS_STARTING = 1, STATUS_STARTED = 2, STATUS_STOPPING = 3;
 
   private final Vertx vertx;
@@ -183,9 +190,12 @@ public class SSHServer implements TermServer {
         nativeServer.setShellFactory(() -> new TtyCommand(defaultCharset, connectionHandler::handle));
         Handler<SSHExec> execHandler = this.execHandler;
         if (execHandler != null) {
-          nativeServer.setCommandFactory(command -> new TtyCommand(defaultCharset, conn -> {
-            execHandler.handle(new SSHExec(command, conn));
-          }));
+          nativeServer.setCommandFactory(command -> {
+            return new TtyCommand(defaultCharset,  conn -> {
+
+              execHandler.handle(new SSHExec(command, (SSHTtyConnection) conn));
+            });
+          });
         }
         nativeServer.setHost(options.getHost());
         nativeServer.setPort(options.getPort());
@@ -193,18 +203,25 @@ public class SSHServer implements TermServer {
         nativeServer.setIoServiceFactoryFactory(new NettyIoServiceFactoryFactory(listenContext.nettyEventLoop(), new VertxIoHandlerBridge(listenContext)));
         nativeServer.setServiceFactories(Arrays.asList(ServerConnectionServiceFactory.INSTANCE, AsyncUserAuthServiceFactory.INSTANCE));
 
-        //
+
         if (authProvider == null) {
           throw new VertxException("No authenticator");
         }
 
         nativeServer.setPasswordAuthenticator((username, userpass, session) -> {
           AsyncAuth auth = new AsyncAuth();
+
           listenContext.runOnContext(v -> {
             authProvider.authenticate(new JsonObject().put("username", username).put("password", userpass), ar -> {
               auth.setAuthed(ar.succeeded());
-              if(ar.succeeded())
-                vertx.sharedData().getLocalMap("_vertx_shell_sessions").put(session.getClientAddress().toString(),ar.result());
+
+              if(ar.succeeded()){
+                //session.setAttribute(USER_KEY,ar.result());
+
+                LoggerFactory.getLogger(this.getClass().getName()).
+                        trace("stored " + username);
+
+              }
             });
           });
           throw auth;
