@@ -35,6 +35,7 @@ package io.vertx.ext.shell.term;
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Handler;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.cli.Completion;
 import io.vertx.ext.shell.session.Session;
 
@@ -126,5 +127,9 @@ public interface Term extends Tty {
    */
   void close();
 
-  String getUsername();
+  /**
+   *
+   * @return the authenticated user of the connection, or a generic Anonymous user
+   */
+  User getUser();
 }

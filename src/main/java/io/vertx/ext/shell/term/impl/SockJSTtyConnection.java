@@ -41,6 +41,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.term.Term;
+import io.vertx.ext.shell.term.VertxIdentifyableTtyConnection;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 
 import java.nio.charset.Charset;
@@ -53,7 +54,7 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class SockJSTtyConnection extends HttpTtyConnection implements IdentifyableTtyConnection {
+public class SockJSTtyConnection extends HttpTtyConnection implements VertxIdentifyableTtyConnection {
 
   private final Context context;
   private final SockJSSocket socket;
@@ -68,6 +69,10 @@ public class SockJSTtyConnection extends HttpTtyConnection implements Identifyab
   public String getUsername(){
     return this.socket.webUser().principal().getString("username");
   }
+  public User getUser(){
+    return this.socket.webUser();
+  }
+
   @Override
   protected void write(byte[] bytes) {
     socket.write(Buffer.buffer(bytes));

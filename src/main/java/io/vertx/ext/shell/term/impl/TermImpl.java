@@ -39,11 +39,14 @@ import io.termd.core.tty.TtyConnection;
 import io.termd.core.util.Helper;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.cli.CliToken;
 import io.vertx.ext.shell.cli.Completion;
+import io.vertx.ext.shell.impl.GenericUserImpl;
 import io.vertx.ext.shell.session.Session;
 import io.vertx.ext.shell.term.SignalHandler;
 import io.vertx.ext.shell.term.Term;
+import io.vertx.ext.shell.term.VertxIdentifyableTtyConnection;
 
 import java.util.Collections;
 import java.util.List;
@@ -113,13 +116,17 @@ public class TermImpl implements Term {
     return this;
   }
 
-  @Override
-  public String getUsername() {
-    String un;
+
+  public User getUser() {
+    User un;
     try {
-      un = ((IdentifyableTtyConnection) conn).getUsername();
+      un = ((VertxIdentifyableTtyConnection) conn).getUser();
     } catch (ClassCastException e) {
-      un= "Anonymous";
+      try {
+        un = new GenericUserImpl(((IdentifyableTtyConnection) conn).getUsername());
+      } catch (ClassCastException e2) {
+        un= new GenericUserImpl("Anonymous");
+      }
     }
     return un;
   }

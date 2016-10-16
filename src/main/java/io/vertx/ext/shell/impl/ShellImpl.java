@@ -71,7 +71,7 @@ public class ShellImpl implements Shell {
     this.commandManager = commandManager;
     this.closedFuture = Future.future();
     this.term = term;
-    this.session = new SessionImpl(term.getUsername());
+    this.session = new SessionImpl(term.getUser());
     session.put("vert.x-command-manager", commandManager);
 
     if (term != null) {
