@@ -33,6 +33,7 @@
 package io.vertx.ext.shell.term.impl;
 
 import io.termd.core.readline.Keymap;
+import io.termd.core.ssh.SSHTtyConnection;
 import io.termd.core.ssh.TtyCommand;
 import io.termd.core.ssh.netty.AsyncAuth;
 import io.termd.core.ssh.netty.AsyncUserAuthServiceFactory;
@@ -51,9 +52,11 @@ import io.vertx.core.net.KeyCertOptions;
 import io.vertx.core.net.PfxOptions;
 import io.vertx.core.net.impl.KeyStoreHelper;
 import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.term.SSHTermOptions;
 import io.vertx.ext.shell.term.TermServer;
 import io.vertx.ext.shell.term.Term;
+import org.apache.sshd.common.AttributeStore;
 import org.apache.sshd.common.keyprovider.AbstractKeyPairProvider;
 import org.apache.sshd.common.keyprovider.KeyPairProvider;
 import org.apache.sshd.server.SshServer;
@@ -81,6 +84,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SSHServer implements TermServer {
 
   private static final int STATUS_STOPPED = 0, STATUS_STARTING = 1, STATUS_STARTED = 2, STATUS_STOPPING = 3;
+  static final AttributeStore.AttributeKey<User> USER_KEY = new AttributeStore.AttributeKey<User>();
 
   private final Vertx vertx;
   private final SSHTermOptions options;
@@ -184,7 +188,7 @@ public class SSHServer implements TermServer {
         Handler<SSHExec> execHandler = this.execHandler;
         if (execHandler != null) {
           nativeServer.setCommandFactory(command -> new TtyCommand(defaultCharset, conn -> {
-            execHandler.handle(new SSHExec(command, conn));
+            execHandler.handle(new SSHExec(command,  (SSHTtyConnection) conn));
           }));
         }
         nativeServer.setHost(options.getHost());
@@ -203,6 +207,9 @@ public class SSHServer implements TermServer {
           listenContext.runOnContext(v -> {
             authProvider.authenticate(new JsonObject().put("username", username).put("password", userpass), ar -> {
               auth.setAuthed(ar.succeeded());
+              if(ar.succeeded()){
+                session.setAttribute(USER_KEY,ar.result());
+              }
             });
           });
           throw auth;

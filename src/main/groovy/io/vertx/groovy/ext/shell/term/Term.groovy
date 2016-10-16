@@ -125,4 +125,8 @@ public class Term extends Tty {
   public void close() {
     delegate.close();
   }
+  public String getUsername() {
+    def ret = delegate.getUsername();
+    return ret;
+  }
 }

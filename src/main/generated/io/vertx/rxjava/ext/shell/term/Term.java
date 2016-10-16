@@ -145,6 +145,11 @@ public class Term extends Tty {
     delegate.close();
   }
 
+  public String getUsername() { 
+    String ret = delegate.getUsername();
+    return ret;
+  }
+
 
   public static Term newInstance(io.vertx.ext.shell.term.Term arg) {
     return arg != null ? new Term(arg) : null;

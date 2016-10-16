@@ -58,20 +58,21 @@ public class ShellImpl implements Shell {
   final String id;
   final Future<Void> closedFuture;
   private final InternalCommandManager commandManager;
-  private final Session session = new SessionImpl();
+  private final Session session;
   private final JobControllerImpl jobController;
   private Term term;
   private String welcome;
 
   public ShellImpl(Term term, InternalCommandManager commandManager) {
 
-    session.put("vert.x-command-manager", commandManager);
 
     this.id = UUID.randomUUID().toString();
     this.jobController = new JobControllerImpl();
     this.commandManager = commandManager;
     this.closedFuture = Future.future();
     this.term = term;
+    this.session = new SessionImpl(term.getUsername());
+    session.put("vert.x-command-manager", commandManager);
 
     if (term != null) {
       term.setSession(session);

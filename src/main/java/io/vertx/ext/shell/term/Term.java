@@ -125,4 +125,6 @@ public interface Term extends Tty {
    * Close the connection to terminal.
    */
   void close();
+
+  String getUsername();
 }

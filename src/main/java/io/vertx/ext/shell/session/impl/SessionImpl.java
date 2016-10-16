@@ -32,6 +32,13 @@
 
 package io.vertx.ext.shell.session.impl;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.AbstractUser;
+import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.session.Session;
 
 import java.util.HashMap;
@@ -43,6 +50,11 @@ import java.util.Map;
 public class SessionImpl implements Session {
 
   private Map<String, Object> data = new HashMap<>();
+  private final User user;
+
+  public SessionImpl(User u){    this.user = u;  }
+  public SessionImpl(String un){    this.user = new GenericUser(un);  }
+  public SessionImpl(){    this.user = new GenericUser("Anonymous");  }
 
   @Override
   public Session put(String key, Object obj) {
@@ -53,6 +65,9 @@ public class SessionImpl implements Session {
     }
     return this;
   }
+  public User getUser() {
+    return user;
+  }
 
   @Override
   public <T> T get(String key) {
@@ -62,5 +77,27 @@ public class SessionImpl implements Session {
   @Override
   public <T> T remove(String key) {
     return (T) data.remove(key);
+  }
+
+  private class GenericUser extends AbstractUser{
+    private final String username;
+    GenericUser(String username){
+      this.username = username;
+    }
+
+    @Override
+    protected void doIsPermitted(String s, Handler<AsyncResult<Boolean>> handler) {
+      handler.handle(Future.succeededFuture(false));
+    }
+
+    @Override
+    public JsonObject principal() {
+      return new JsonObject().put("username",this.username);
+    }
+
+    @Override
+    public void setAuthProvider(AuthProvider authProvider) {
+      //noop
+    }
   }
 }

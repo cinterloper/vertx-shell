@@ -143,5 +143,12 @@ module VertxShell
       end
       raise ArgumentError, "Invalid arguments when calling close()"
     end
+    # @return [String]
+    def get_username
+      if !block_given?
+        return @j_del.java_method(:getUsername, []).call()
+      end
+      raise ArgumentError, "Invalid arguments when calling get_username()"
+    end
   end
 end

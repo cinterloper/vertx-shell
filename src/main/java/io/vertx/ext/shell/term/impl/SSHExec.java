@@ -32,9 +32,14 @@
 
 package io.vertx.ext.shell.term.impl;
 
-import io.termd.core.tty.TtyConnection;
+import io.termd.core.ssh.SSHTtyConnection;
 import io.vertx.core.Handler;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.shell.term.Tty;
+import io.vertx.ext.shell.term.impl.SSHServer;
+import org.apache.sshd.common.AttributeStore;
+import org.apache.sshd.server.channel.ChannelSession;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -42,13 +47,17 @@ import io.vertx.ext.shell.term.Tty;
 public class SSHExec implements Tty {
 
   private final String command;
-  private final TtyConnection conn;
-
-  SSHExec(String command, TtyConnection conn) {
+  private final SSHTtyConnection conn;
+  private final User user;
+  SSHExec(String command, SSHTtyConnection conn) {
     this.command = command;
     this.conn = conn;
+    ChannelSession s = conn.getSession();
+    user = s.getAttribute(SSHServer.USER_KEY);
   }
-
+  public User getUser() {
+    return user;
+  }
   public String command() {
     return command;
   }

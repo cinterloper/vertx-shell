@@ -34,6 +34,7 @@ package io.vertx.ext.shell.term.impl;
 
 import io.termd.core.readline.Keymap;
 import io.termd.core.readline.Readline;
+import io.termd.core.tty.IdentifyableTtyConnection;
 import io.termd.core.tty.TtyConnection;
 import io.termd.core.util.Helper;
 import io.vertx.core.Handler;
@@ -113,6 +114,17 @@ public class TermImpl implements Term {
   }
 
   @Override
+  public String getUsername() {
+    String un;
+    try {
+      un = ((IdentifyableTtyConnection) conn).getUsername();
+    } catch (ClassCastException e) {
+      un= "Anonymous";
+    }
+    return un;
+  }
+
+  @Override
   public void readline(String prompt, Handler<String> lineHandler) {
     if (conn.getStdinHandler() != echoHandler) {
       throw new IllegalStateException();
@@ -167,8 +179,8 @@ public class TermImpl implements Term {
         public void complete(List<String> candidates) {
           if (candidates.size() > 0) {
             abc.suggest(candidates.stream().
-                map(Helper::toCodePoints).
-                collect(Collectors.toList()));
+              map(Helper::toCodePoints).
+              collect(Collectors.toList()));
           } else {
             abc.end();
           }
