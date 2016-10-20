@@ -40,6 +40,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.shell.impl.GenericUserImpl;
 import io.vertx.ext.shell.term.Term;
 import io.vertx.ext.shell.term.VertxIdentifyableTtyConnection;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
@@ -64,13 +65,17 @@ public class SockJSTtyConnection extends HttpTtyConnection implements VertxIdent
     super(charset, getInitialSize(socket));
     this.context = context;
     this.socket = socket;
-    this.user = socket.webUser();
+    if(socket.webUser() == null)
+        this.user = new GenericUserImpl("Anonymous");
+    else
+        this.user=socket.webUser();
+
   }
   public String getUsername(){
-    return this.socket.webUser().principal().getString("username");
+    return this.user.principal().getString("username");
   }
   public User getUser(){
-    return this.socket.webUser();
+    return this.user;
   }
 
   @Override

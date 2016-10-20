@@ -174,7 +174,8 @@ public class ShellServerImpl implements ShellServer {
       if (termServer instanceof SSHServer) {
         ((SSHServer)termServer).setExecHandler(exec -> {
           Process process = commandManager.createProcess(exec.command());
-          process.setSession(new SessionImpl(exec.getUser()));//this does not work?
+          //process.setSession(new SessionImpl(exec.getUser()));//is the session really set here?
+          process.setSession(new SessionImpl());//is the session really set here?
           process.setTty(exec);
           process.terminatedHandler(exec::end);
           process.run(true, done -> {});

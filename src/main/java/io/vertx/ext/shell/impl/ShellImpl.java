@@ -71,7 +71,11 @@ public class ShellImpl implements Shell {
     this.commandManager = commandManager;
     this.closedFuture = Future.future();
     this.term = term;
-    this.session = new SessionImpl(term.getUser());
+    if(term != null) //this happens in ShellServerTest.java
+      this.session = new SessionImpl(term.getUser());
+    else
+      this.session = new SessionImpl(new GenericUserImpl("Anonymous"));
+
     session.put("vert.x-command-manager", commandManager);
 
     if (term != null) {

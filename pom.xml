@@ -27,7 +27,7 @@
   </parent>
 
   <artifactId>vertx-shell</artifactId>
-  <version>3.3.3-cinter13</version>
+  <version>3.3.3-cinter16</version>
 
   <name>Vert.x Shell</name>
 

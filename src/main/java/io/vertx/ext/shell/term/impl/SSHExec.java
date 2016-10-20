@@ -48,16 +48,16 @@ public class SSHExec implements Tty {
 
   private final String command;
   private final SSHTtyConnection conn;
-  private final User user;
+  //private final User user;
   SSHExec(String command, SSHTtyConnection conn) {
     this.command = command;
     this.conn = conn;
-    ChannelSession s = conn.getSession();
-    user = s.getAttribute(SSHServer.USER_KEY);
+    //ChannelSession s = conn.getSession();
+   // user = s.getAttribute(SSHServer.USER_KEY);
   }
-  public User getUser() {
+  /*public User getUser() {
     return user;
-  }
+  }*/
   public String command() {
     return command;
   }
